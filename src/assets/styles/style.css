@@ -2,10 +2,67 @@
 @import "./fonts.css";
 @import "./utils.css";
 
-.test {
-    color: yellow !important;
+body {
+    background-color: gray;
+    padding: 0;
+    margin: 0;
 }
 
-.test {
-    color: red !important;
+.main-container {
+    background-color: #cccccc;
+    width: 70%;
+    height: 100%;
+    padding: 10px 50px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+button, input[type="submit"] {
+    width: 15%;
+    height: 30px;
+    margin: auto;
+    margin-top: 20px;
+    display: block;
+}
+.restart-button {
+    background-color: #ccffcc;
+    width: 22%;
+}
+.restart-button:hover {
+    background-color: #eeffee;
+}
+
+.item-container {
+    display: table;
+    border-spacing: 15px;
+}
+
+.pizza {
+    width: 250px;
+    height: 300px;
+    background-size: 250px;
+    background-repeat: no-repeat;
+    text-align: center;
+    display: table-cell;
+    vertical-align: bottom;
+}
+
+.pizza:hover {
+    background-color: lightgray;
+}
+
+form > * {
+    display: block;
+}
+
+#margarita {
+    background-image: url("../img/margarita.png");
+}
+#pepperoni {
+    background-image: url("../img/pepperoni.png");
+}
+#bavarskaya {
+    background-image: url("../img/bavarskaya.png");
 }
