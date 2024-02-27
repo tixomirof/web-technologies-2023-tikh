@@ -8,7 +8,7 @@ class PizzaMaker {
     }
 
     removeTopping(topping) {
-        topping.removeFromPizza();
+        topping.removeFromPizza(this.pizza);
     }
 
     getToppings() {
@@ -29,6 +29,13 @@ class PizzaMaker {
 
     calculateCalories() {
         return this.pizza.getCalory();
+    }
+
+    updateLabelFields() {
+        const priceLabel = document.getElementById("price");
+        const kcalLabel = document.getElementById("kcal");
+        priceLabel.innerText = `Стоимость: ${this.calculatePrice()} руб.`;
+        kcalLabel.innerText = `Калорийность: ${this.calculateCalories()} ккал.`;
     }
 }
 
@@ -159,12 +166,12 @@ class PizzaTopping {
         }
     }
 
-    /*removeFromPizza() {
-        let index = this.pizza.toppings.indexOf(this);
+    removeFromPizza(pizza) {
+        let index = pizza.toppings.indexOf(this);
         if (index > -1) {
-            this.pizza.toppings.splice(index, 1);
+            pizza.toppings.splice(index, 1);
         }
-    }*/
+    }
 
     getPrice(pizza) {
         if (pizza.size == "Большая") {
@@ -192,6 +199,7 @@ function startPizzaMaker() {
     nextPhaseButton.disabled = true;
 
     pizzaMaker = new PizzaMaker();
+    pizzaMaker.updateLabelFields();
 
     function createPizzaDiv(pizza, id_name) {
         const pizzaDiv = document.createElement("div");
@@ -205,6 +213,7 @@ function startPizzaMaker() {
             }
             pizzaDiv.style.backgroundColor = "#777777";
             nextPhaseButton.disabled = false;
+            pizzaMaker.updateLabelFields();
         }
         pizzaDiv.innerText = pizzaInstance.stuffing + "\nКкал: " + pizzaInstance.getCalory() + "\nСтоимость: " + pizzaInstance.getPrice() + " руб.";
         itemContainer.appendChild(pizzaDiv);
@@ -225,10 +234,31 @@ function nextPhaseSelectSize() {
         <label><input type="radio" id="small" name="size" value="small" />Маленькая (100 руб., 100 ккал)</label>
         <input type="submit" value="Далее" />
     </form>`;
+
+    const big = document.getElementById("big");
+    const small = document.getElementById("small");
+    
+    const basePizza = pizzaMaker.pizza;
+    pizzaMaker.pizza = new BigPizza(basePizza); // default value
+    
+    big.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+            pizzaMaker.pizza = new BigPizza(basePizza);
+        }
+        pizzaMaker.updateLabelFields();
+    });
+    small.addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+            pizzaMaker.pizza = new SmallPizza(basePizza);
+        }
+        pizzaMaker.updateLabelFields();
+    });
+
+    pizzaMaker.updateLabelFields();
 }
 
 function summarizePhaseSelectSize() {
-    let inputs = document.getElementsByTagName("input");
+    /*let inputs = document.getElementsByTagName("input");
     for (const input of inputs) {
         if (input.type == "radio") {
             if (input.checked) {
@@ -239,13 +269,13 @@ function summarizePhaseSelectSize() {
                 else if (input.value == "small") {
                     const smallPizza = new SmallPizza(pizzaMaker.pizza);
                     pizzaMaker.pizza = smallPizza;
-                }
+                }*/
                 nextPhaseAddToppings();
                 return false;
-            }
+            /*}
         }
     }
-    throw "No radio buttons selected phase 2";
+    throw "No radio buttons selected phase 2";*/
 }
 
 let inputTable;
@@ -266,23 +296,40 @@ function nextPhaseAddToppings() {
     inputTable = {};
 
     function addToppingAsCheckbox(topping) {
-        form.innerHTML += `<label><input type="checkbox" name="${topping.name}" />
-        ${topping.name} (+${topping.getPrice(pizzaMaker.pizza)} рублей, +${topping.calory} ккал)
-        </label>`;
-        const input = document.getElementsByName(topping.name)[0];
-        inputTable[input.name] = topping;
+        const label = document.createElement("label");
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.addEventListener("click", function() {
+            if (this.checked) {
+                pizzaMaker.addTopping(topping);
+            }
+            else {
+                pizzaMaker.removeTopping(topping);
+            }
+            pizzaMaker.updateLabelFields();
+        });
+        
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(
+            `${topping.name} (+${topping.getPrice(pizzaMaker.pizza)} рублей, +${topping.calory} ккал)`
+            ));
+
+        form.appendChild(label);
     }
 
     addToppingAsCheckbox(mocarella);
     addToppingAsCheckbox(cheese);
     addToppingAsCheckbox(cheder);
 
-    form.innerHTML += `<input type="submit" value="Закончить" />`;
+    const submitButton = document.createElement("input");
+    submitButton.type = "submit";
+    submitButton.value = "Закончить";
+    form.appendChild(submitButton);
 }
 
 function summarizePhaseAddToppings() {
     try {
-        let inputs = document.getElementsByTagName("input");
+        /*let inputs = document.getElementsByTagName("input");
         for (const input of inputs) {
             if (input.type == "checkbox") {
                 if (input.checked) {
@@ -290,7 +337,7 @@ function summarizePhaseAddToppings() {
                     pizzaMaker.addTopping(topping);
                 }
             }
-        }
+        }*/
         nextPhaseFinale();
     }
     catch(e) { alert(e); }
@@ -302,6 +349,7 @@ function nextPhaseFinale() {
 
     const calory = pizzaMaker.calculateCalories();
     const price = pizzaMaker.calculatePrice();
+    pizzaMaker.updateLabelFields();
 
     node.innerHTML = `
     <h1>Congratulations! Your pizza is ready</h1>
