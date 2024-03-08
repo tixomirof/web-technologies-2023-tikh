@@ -1,8 +1,8 @@
-import { Catalog } from "./src/components/catalog.js"
+import { Catalog } from "./src/components/catalog.js";
 
 const renderPostItem = item => `
     <a  
-        href="posts/${item.id}"
+        href="/posts.html?id=${item.id}"
         class="post-item"
     >
         <span class="post-item__title">
@@ -15,13 +15,16 @@ const renderPostItem = item => `
     </a>
 `
 
-const getPostItems = ({ limit, page }) => {
-    return fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}&_page=${page}`)
-        .then(async res => {
-            const total = +res.headers.get('x-total-count')
-            const items = await res.json()
-            return { items, total }
-        })
+const getPostItems = async function({ limit, page }) {
+    try {
+        let results = await fetch(`https://jsonplaceholder.typicode.com/posts?_limit=${limit}&_page=${page}`);
+        const total = +results.headers.get('x-total-count');
+        const items = await results.json();
+        return { items, total };
+    }
+    catch (e) {
+        console.error("Could not load post items. ERROR message: " + e);
+    }
 }
 
 const renderPhotoItem = item => `
@@ -40,13 +43,16 @@ const renderPhotoItem = item => `
     </a>
 `
 
-const getPhotoItems = ({ limit, page }) => {
-    return fetch(`https://jsonplaceholder.typicode.com/photos?_limit=${limit}&_page=${page}`)
-        .then(async res => {
-            const total = +res.headers.get('x-total-count')
-            const items = await res.json()
-            return { items, total }
-        })
+const getPhotoItems = async function({ limit, page }) {
+    try {
+        let results = await fetch(`https://jsonplaceholder.typicode.com/photos?_limit=${limit}&_page=${page}`);
+        const total = +results.headers.get('x-total-count');
+        const items = await results.json();
+        return { items, total };
+    }
+    catch (e) {
+        console.error("Could not load photo items. ERROR message: " + e);
+    }
 }
 
 const init = () => {
