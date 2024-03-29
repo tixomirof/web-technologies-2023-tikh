@@ -1,22 +1,55 @@
 .posts-container {
     padding: 20px;
     border: 5px solid black;
-    display: grid;
+    display: inline-flex;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 .post-container {
     border: 1px solid black;
-    padding: 5px;
-    margin: 20px;
+    padding: 6px 10px 0 10px;
+    margin: 1px 7px 15px 7px;
     background-color: rgb(255, 166, 166);
+    word-wrap: break-word;
+    display: grid;
+    width: 30%;
+    grid-template-areas: "id label checkbox" "desc desc desc" "delete delete delete";
+    grid-template-columns: 50px 1fr 120px;
+    grid-template-rows: 25px 1fr 40px;
 }
 
 .post-completed {
     background-color: rgb(166, 255, 166);
 }
 
+.post-id {
+    grid-area: id;
+    font-weight: 800;
+}
+
 .post-container p {
     font-family: "Inter";
+    margin-bottom: 18px;
+    grid-area: desc;
+}
+
+.post-checkmark {
+    grid-area: checkbox;
+}
+
+.post-checkmark-label {
+    grid-area: checkbox;
+}
+
+.post-checkmark, .post-checkmark-label {
+    justify-self: end;
+}
+
+.post-delete {
+    grid-area: delete;
+    height: 32px;
+    margin-bottom: 10px;
 }
 
 #todoform-link {

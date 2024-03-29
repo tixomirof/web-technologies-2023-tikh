@@ -23,14 +23,14 @@ const init = async () => {
         }
     }, async (values) => {
         await createTodo(values);
-        //location.todos();
+        location.todos();
     })
 }
 
 async function createTodo(values) {
     const description = values.description;
     let res = await api("/todo", {
-        body: JSON.stringify({description: "meowmeow"}),
+        body: JSON.stringify({description: description}),
         method: 'POST'});
     console.log(res);   
 }

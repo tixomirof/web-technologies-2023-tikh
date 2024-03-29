@@ -13,7 +13,7 @@ const api = async (url, options = {}) => {
     }
 
     const result = await Promise.all([
-        await new Promise(resolve => setTimeout(() => resolve(), 200)),
+        await new Promise(resolve => setTimeout(() => resolve(), 800)),
         await fetch(config.BASE_URL + url, {
             ...options,
             headers

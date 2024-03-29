@@ -32,7 +32,7 @@ class Form {
         const fields = []
 
         Object.keys(this.rules).forEach(name => {
-            const input = this.el.querySelector(`input[name=${name}]`)
+            const input = this.el.querySelector(`input[name=${name}]`) || this.el.querySelector(`textarea[name=${name}]`);
 
             fields.push({
                 input,

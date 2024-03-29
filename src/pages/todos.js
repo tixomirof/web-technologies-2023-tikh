@@ -16,13 +16,14 @@ const init = async () => {
     for (var post of posts.data) {
         createPost(post);
     }
-    console.log(posts);
     // create POST /todo { description: string }
     // get get /todo/1 - 1 это id
     // getAll get /todo
     // update put /todo/1 - 1 это id { description: string }
     // delete delete /todo/1 - 1 это id
 }
+
+let fetchInProgress;
 
 function createPost(post) {
     const postId = post.id;
@@ -34,37 +35,68 @@ function createPost(post) {
     postContainer.className = "post-container";
     postContainer.id = "post-container-" + postId;
 
-    const idField = document.createElement("p");
-    idField.innerText = postId;
+    // ID
+    const idField = document.createElement("span");
+    idField.innerText = "#" + postId;
     idField.className = "post-id";
     postContainer.appendChild(idField);
 
-    const completedCheckmark = document.createElement("input", {type: "checkbox", checked: isCompleted});
-    completedCheckmark.className = "post-checkmark";
-    completedCheckmark.innerText = "Completed";
-    completedCheckmark.addEventListener("onchecked", async () => {
-        await api("/todo/" + postId, { method: 'PUT', body: { completed: completedCheckmark.checked } });
-        if (completedCheckmark.checked && !postContainer.classList.contains("post-completed")) {
-            postContainer.classList.add("post-completed");
-        } else if (postContainer.classList.contains("post-completed")) {
-            postContainer.classList.remove("post-completed");
-        }
-    });
-    postContainer.appendChild(completedCheckmark);
+    // CHECKMARK COMPLETED
+    const checkmarkLabel = document.createElement("label");
+    checkmarkLabel.innerText = "Completed";
+    checkmarkLabel.className = "post-checkmark-label";
 
+    const completedCheckmark = document.createElement("input");
+    completedCheckmark.className = "post-checkmark";
+    completedCheckmark.type = "checkbox";
+    completedCheckmark.checked = isCompleted;
+    completedCheckmark.addEventListener("change", async () => {
+        let completed = completedCheckmark.checked;
+        completedCheckmark.checked = !completedCheckmark.checked; // reverse action until it's actually updated on the server
+        if (fetchInProgress) return;
+
+        fetchInProgress = true;
+        try {
+            let response = await api("/todo/" + postId, {
+                method: 'PUT',
+                body: JSON.stringify({ completed: completed })
+            });
+
+            if (response.ok) {
+                let data = response.data;
+                if (data.completed && !postContainer.classList.contains("post-completed")) {
+                    postContainer.classList.add("post-completed");
+                } else if (postContainer.classList.contains("post-completed")) {
+                    postContainer.classList.remove("post-completed");
+                }
+                completedCheckmark.checked = data.completed;
+            }
+        }
+        catch(e) {
+            console.error("An error has occured when connecting to the web-server: " + e);
+        }
+        fetchInProgress = false;
+    });
+    checkmarkLabel.appendChild(completedCheckmark);
+    postContainer.appendChild(checkmarkLabel);
+
+    // DESCRIPTION
     const descriptionField = document.createElement("p");
     descriptionField.innerText = description;
     descriptionField.className = "post-description";
     postContainer.appendChild(descriptionField);
 
+    // DELETE BUTTON
     const deletionButton = document.createElement("button");
     deletionButton.innerText = "Удалить";
     deletionButton.className = "post-delete";
-    deletionButton.addEventListener("onclick", async () => {
+    deletionButton.addEventListener("click", async () => {
         mainContainer.removeChild(postContainer);
         await api("/todo/" + postId, { method: 'DELETE' });
     });
+    postContainer.appendChild(deletionButton);
 
+    // ADDITIONAL HIGHLIGHTING
     if (isCompleted) {
         postContainer.classList.add("post-completed");
     }
